@@ -1,0 +1,7 @@
+README.md export-ignore
+md-utils/ export-ignore
+img/ export-ignore
+Blockchain.pdf export-ignore
+*.gitattributes export-ignore
+*.gitmodules export-ignore
+*.gitignore export-ignore

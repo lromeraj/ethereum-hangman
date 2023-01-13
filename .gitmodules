@@ -1,0 +1,3 @@
+[submodule "md-utils"]
+	path = md-utils
+	url = git@gitlab.lromeraj.net:ucm/miot/md-utils.git
