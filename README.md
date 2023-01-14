@@ -89,9 +89,15 @@ A continuación detallamos los pasos necesarios para probar nuestra aplicación 
 
 2. Como podrá observar en la interfaz de usuario, el primer *input* permite introducir la dirección del contrato correspondiente, a continuación le adjuntamos una serie de instancias con un juego ya creado pero sin interacción previa alguna:
     ``` js
-    // poner aquí las direcciones
+    0x27873B1297894CF18a21b8D63C741e291A1d8D7B "hola" // Máximo 1 participante
+    0x2eAa4F76b80999B5e5eAa9f72fdBa4f94E65394A "MrBean" // Máximo 1 participante
+    0x8DE0eF8AB6032e13C0F49373912A7a37E3e5bEC4 "BATMAN" // Máximo 1 participante
+    0xFeBCd8DbFB28f9617DcedfF9E2A8686F749cB017 "EthereumHangman" // Máximo 2 participantes
+    0x1Fd9581e827Ff0b2652739Fca35A26504F83a9A9 "Este es un ejemplo mas largo" // Máximo 4 participantes
     ```
-3. si desea crear sus propios contratos deberá abrir *Remix* y copiar el código del contrato tal cual se encuentra en el repositorio, se recomienda NO modificar el contrato, ya que esto podría entrar en conflicto con el *ABI* grabado en el servidor *HTTP* que le sirve la interfaz y dejarla inservible (si modifica las cabeceras de algunas funciones por ejemplo). Cuando vaya a desplegar el contrato seleccione el entorno `External Http Provider` y escriba la siguiente URL `https://geth.lromeraj.net:443`. El siguiente paso simplemente consiste en crear un contrato, ¡piense en un buen secreto a la hora de crearlo! ;)
+    > **NOTA**: aunque el máximo de participantes sea `1` puede abrir varias ventanas con el mismo contrato y poder ver como (en todas ellas) se actualizan los datos en tiempo real.
+
+3. si desea crear sus propios contratos deberá abrir *Remix* y copiar el código del contrato tal cual se encuentra en el repositorio, se recomienda NO modificar el contrato, ya que esto podría entrar en conflicto con el *ABI* grabado en el servidor *HTTP* que le sirve la interfaz y dejarla inservible (si modifica las cabeceras de algunas funciones por ejemplo). Cuando vaya a desplegar el contrato seleccione el entorno `External Http Provider` y escriba la siguiente URL `https://geth.lromeraj.net`. El siguiente paso simplemente consiste en crear un contrato, ¡piense en un buen secreto a la hora de crearlo! ;)
 
 <p break />
 

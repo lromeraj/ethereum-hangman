@@ -467,10 +467,19 @@ MathJax.Hub.Queue(function() {
 <p>Antes de comenzar a jugar, le recordamos que hemos implementado un sistema de eventos para dar soporte a cambios en tiempo real que ocurran en el contrato y poder así notificar al resto de jugadores que se encuentren en línea.</p>
 </blockquote>
 <ol start="2">
-<li>Como podrá observar en la interfaz de usuario, el primer <em>input</em> permite introducir la dirección del contrato correspondiente, a continuación le adjuntamos una serie de instancias con un juego ya creado pero sin interacción previa alguna:<pre><code class="hljs js"><span class="hljs-comment">// poner aquí las direcciones</span>
+<li><p>Como podrá observar en la interfaz de usuario, el primer <em>input</em> permite introducir la dirección del contrato correspondiente, a continuación le adjuntamos una serie de instancias con un juego ya creado pero sin interacción previa alguna:</p>
+<pre><code class="hljs js"><span class="hljs-number">0x27873B1297894CF18a21b8D63C741e291A1d8D7B</span> <span class="hljs-string">"hola"</span> <span class="hljs-comment">// Máximo 1 participante</span>
+<span class="hljs-number">0x2eAa4F76b80999B5e5eAa9f72fdBa4f94E65394A</span> <span class="hljs-string">"MrBean"</span> <span class="hljs-comment">// Máximo 1 participante</span>
+<span class="hljs-number">0x8DE0eF8AB6032e13C0F49373912A7a37E3e5bEC4</span> <span class="hljs-string">"BATMAN"</span> <span class="hljs-comment">// Máximo 1 participante</span>
+<span class="hljs-number">0xFeBCd8DbFB28f9617DcedfF9E2A8686F749cB017</span> <span class="hljs-string">"EthereumHangman"</span> <span class="hljs-comment">// Máximo 2 participantes</span>
+<span class="hljs-number">0x1Fd9581e827Ff0b2652739Fca35A26504F83a9A9</span> <span class="hljs-string">"Este es un ejemplo mas largo"</span> <span class="hljs-comment">// Máximo 4 participantes</span>
 </code></pre>
+<blockquote>
+<p><strong>NOTA</strong>: aunque el máximo de participantes sea <code>1</code> puede abrir varias ventanas con el mismo contrato y poder ver como (en todas ellas) se actualizan los datos en tiempo real.</p>
+</blockquote>
 </li>
-<li>si desea crear sus propios contratos deberá abrir <em>Remix</em> y copiar el código del contrato tal cual se encuentra en el repositorio, se recomienda NO modificar el contrato, ya que esto podría entrar en conflicto con el <em>ABI</em> grabado en el servidor <em>HTTP</em> que le sirve la interfaz y dejarla inservible (si modifica las cabeceras de algunas funciones por ejemplo). Cuando vaya a desplegar el contrato seleccione el entorno <code>External Http Provider</code> y escriba la siguiente URL <code>https://geth.lromeraj.net:443</code>. El siguiente paso simplemente consiste en crear un contrato, ¡piense en un buen secreto a la hora de crearlo! ;)</li>
+<li><p>si desea crear sus propios contratos deberá abrir <em>Remix</em> y copiar el código del contrato tal cual se encuentra en el repositorio, se recomienda NO modificar el contrato, ya que esto podría entrar en conflicto con el <em>ABI</em> grabado en el servidor <em>HTTP</em> que le sirve la interfaz y dejarla inservible (si modifica las cabeceras de algunas funciones por ejemplo). Cuando vaya a desplegar el contrato seleccione el entorno <code>External Http Provider</code> y escriba la siguiente URL <code>https://geth.lromeraj.net</code>. El siguiente paso simplemente consiste en crear un contrato, ¡piense en un buen secreto a la hora de crearlo! ;)</p>
+</li>
 </ol>
 <p break="">
 
