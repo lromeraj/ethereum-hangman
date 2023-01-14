@@ -56,10 +56,7 @@
 
     let serviceProvider;
     const BN = Web3.utils.BN;
-    
-    // simple check
-    console.log( window.location )
-
+        
     if ( window.location.hostname === 'hangman.lromeraj.net' ) {
       serviceProvider = new Web3.providers.WebsocketProvider( 'wss://geth-ws.lromeraj.net', WS_OPTIONS )
     } else {
