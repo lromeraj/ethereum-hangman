@@ -12,7 +12,7 @@ contract Hangman {
     // Events
     event CharsAdded(
         string discoveredChars,
-        string incorrrecTchars,
+        string incorrectChars,
         uint livesLeft
     );
 

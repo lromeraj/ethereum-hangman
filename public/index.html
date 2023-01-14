@@ -20,7 +20,7 @@
 
   <body>
 
-    <input id="contractAddress" value="0x1B1cccaBdfB5F3dED57226d92FCCD7B3D7a1694F" />
+    <input id="contractAddress" />
     <button id="attachContract">Attach contract</button>
 
     <br />
@@ -58,10 +58,12 @@
     const BN = Web3.utils.BN;
     
     // simple check
-    if ( window.location.protocol === 'https:' ) {
-      serviceProvider = new Web3.providers.WebsocketProvider( "wss://geth-ws.lromeraj.net", WS_OPTIONS )
+    console.log( window.location )
+
+    if ( window.location.hostname === 'hangman.lromeraj.net' ) {
+      serviceProvider = new Web3.providers.WebsocketProvider( 'wss://geth-ws.lromeraj.net', WS_OPTIONS )
     } else {
-      serviceProvider = new Web3.providers.WebsocketProvider( "ws://localhost:8546", WS_OPTIONS )
+      serviceProvider = new Web3.providers.WebsocketProvider( `ws://${ window.location.hostname }:8546`, WS_OPTIONS )
     }
 
     const web3 = new Web3( serviceProvider )
@@ -149,10 +151,6 @@
         contract.methods.tryChar( char, amount ).send({ 
           from: currentAccount,
           value: charPrice.mul( amount ),
-        }).then( data => {
-          pullLivesLeft();
-          pullIncorrectChars();
-          pullDiscoveredChars();
         }).catch( err => {
           alert( err );
         })

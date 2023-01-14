@@ -1,4 +1,3 @@
-
 const WS_OPTIONS = {
   timeout: 30000, // ms
 
@@ -20,5 +19,5 @@ const WS_OPTIONS = {
       maxAttempts: 5,
       onTimeout: false
   }
-  
+
 };
