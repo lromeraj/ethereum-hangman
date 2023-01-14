@@ -13,16 +13,27 @@ module.exports = {
         '--http.api', 'web3,eth,personal,net',
       '--allow-insecure-unlock', 
       '--datadir', 'data/',
-      '--dev', 'console',
-      '--preload', 'unlock.js'
     ],
     instances: 1,
     autorestart: true,
     watch: false,
-		shutdown_with_message: true,
     exec_mode: 'fork',
-		kill_timeout: 5000,
     max_memory_restart: '1G'
+  },
+  {
+    name: 'Geth (Account unlocker)',
+    script: 'geth',
+    args: [
+      '--datadir', 'data/',
+      '--exec', 'loadScript("./unlock.js")',
+      'attach'
+    ],
+    instances: 1,
+    watch: false,
+    kill_timeout: 500,
+    autorestart: true,
+    exec_mode: 'fork',
+    max_memory_restart: '50M'
   },
 	{
     name: 'Http',

@@ -1,14 +1,28 @@
-const accountsToUnlock = [ ... eth.accounts ]
+function unlockAllAccounts() {
 
-accountsToUnlock.shift(); // remove first account
+  const accountsToUnlock = [ ... eth.accounts ]
 
-console.log( "\n================ UNLOCK SCRIPT ================\n" )
+  accountsToUnlock.shift(); // remove first account from temp list
 
-for ( let account of accountsToUnlock ) {
-  let strOut = `Unlocking account ${ account } ... `
-  const result = personal.unlockAccount( account, "1234", 0 ); 
-  strOut += result ? "OK" : "ERR";
-  console.log( strOut )
+  console.log( "\n================ UNLOCKING ================\n" )
+
+  for ( let account of accountsToUnlock ) {
+    let strOut = `Unlocking account ${ account } ... `
+    const result = personal.unlockAccount( account, "1234", 0 ); 
+    strOut += result ? "OK" : "ERR";
+    console.log( strOut )
+  }
+
+  console.log( "\n================ ========= ================\n" )
+
 }
 
-console.log( "\n================ ============== ================\n" )
+function main() {
+  unlockAllAccounts();
+  while ( 1 ) {
+    console.log( "Unlocker heartbeat ..." )
+    admin.sleep( 60*60 );
+  }
+}
+
+main();
