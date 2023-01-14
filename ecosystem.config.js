@@ -13,6 +13,7 @@ module.exports = {
         '--http.api', 'web3,eth,personal,net',
       '--allow-insecure-unlock', 
       '--datadir', 'data/',
+      '--dev'
     ],
     instances: 1,
     autorestart: true,

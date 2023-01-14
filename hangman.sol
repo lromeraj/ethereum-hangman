@@ -116,7 +116,7 @@ contract Hangman {
         return string( incorrectChars );
     }
 
-    function tryLetter( 
+    function tryChar( 
         string memory char, 
         uint amount 
     ) 
@@ -175,10 +175,10 @@ contract Hangman {
         // remember participant refunds
         participantsMap[ msg.sender ].refund += __amount * charPrice;
 
+        emit CharsAdded( getDiscoveredChars(), getIncorrectChars(), getLivesLeft() );
+
         if ( gameEnded() ) {
             endGame();
-        } else {
-            emit CharsAdded( getDiscoveredChars(), getIncorrectChars(), getLivesLeft() );
         }
 
     }
