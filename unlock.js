@@ -1,5 +1,5 @@
-const toWei = web3.toWei;
 const BN = web3.BigNumber;
+const { toWei, fromWei } = web3;
 
 const DEFAULT_ACCOUNT_PASSWORD = "1234";
 const DEFAULT_ACCOUNT_BALANCE = toWei( new BN( 100 ), 'ether' ); // ether
@@ -46,7 +46,7 @@ function seedAccounts() {
     
     if ( balanceDiff.gt( 0 ) ) {
       
-      console.log(`Sending ${ balanceDiff } ether to ${account} ...`);
+      console.log(`Sending ${ fromWei(balanceDiff) } ether to ${account} ...`);
 
       eth.sendTransaction({
         from: eth.accounts[ 0 ],

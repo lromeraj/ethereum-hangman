@@ -39,7 +39,7 @@ module.exports = {
 	{
     name: 'Http',
     script: 'node',
-    args: [ './server.js' ],
+    args: [ './http.js' ],
     instances: 1,
     autorestart: true,
     watch: false,
