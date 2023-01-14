@@ -12,14 +12,16 @@ module.exports = {
         '--http.addr', '0.0.0.0', 
         '--http.api', 'web3,eth,personal,net',
       '--allow-insecure-unlock', 
-      '--datadir', 'data/', 
-      '--dev', 'console', 
+      '--datadir', 'data/',
+      '--dev', 'console',
       '--preload', 'unlock.js'
     ],
     instances: 1,
     autorestart: true,
     watch: false,
+		shutdown_with_message: true,
     exec_mode: 'fork',
+		kill_timeout: 5000,
     max_memory_restart: '1G'
   },
 	{
