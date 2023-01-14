@@ -86,22 +86,76 @@ Si por alguna razón el servicio se encuentra caído, recomendamos esperar unos 
       --preload="unlock.js" \
       console
     ```
-    **NOTA**: no hace falta que ejecute este comando ahora, es simplemente para que pueda ver los parámetros que se pasan cuando se ejecute posteriormente de forma automática. El *script* `unlock.js` desbloquea todas las cuentas para que puedan ser utilizadas durante las pruebas del juego. El *script* mostrado a continuación básicamente desbloquea todas las cuentas existentes con la contraseña `1234`:
+    **ATENCIÓN**: no hace falta que ejecute este comando ahora, es simplemente para que pueda ver algunos de los parámetros que se pasan cuando se ejecute posteriormente de forma automática. El *script* `unlock.js` crea un pequeño conjunto de 10 cuentas, les otorga un balance inicial y desbloquea todas ellas para que puedan ser utilizadas durante las pruebas del juego (la contraseña de todas las cuentas creadas por el script es `1234`):
     ``` js
-    const accountsToUnlock = [ ... eth.accounts ]
+    const toWei = web3.toWei;
+    const BN = web3.BigNumber;
 
-    accountsToUnlock.shift(); // remove first account
+    const DEFAULT_ACCOUNT_PASSWORD = "1234";
+    const DEFAULT_ACCOUNT_BALANCE = toWei( new BN( 100 ), 'ether' ); // ether
 
-    console.log( "\n================ UNLOCK SCRIPT ================\n" )
+    function createAccounts() {
+      if ( eth.accounts.length === 1 ) {
+        for ( let i=0; i < 10; i++ ) {
+          personal.newAccount( DEFAULT_ACCOUNT_PASSWORD );
+        }
+      }
+    } 
 
-    for ( let account of accountsToUnlock ) {
-      let strOut = `Unlocking account ${ account } ... `
-      const result = personal.unlockAccount( account, "1234", 0 );
-      strOut += result ? "OK" : "ERR";
-      console.log( strOut )
+    function getCurrentAccounts() {
+      const currentAccounts = [ ... eth.accounts ]
+      currentAccounts.shift();
+      return currentAccounts;
     }
 
-    console.log( "\n================ ============== ================\n" )
+    function unlockAccounts() {
+
+      const accounts = getCurrentAccounts();
+      console.log( "\n================ UNLOCKING ================\n" )
+
+      for ( let account of accounts ) {
+        let strOut = `Unlocking account ${ account } ... `
+        const result = personal.unlockAccount( account, DEFAULT_ACCOUNT_PASSWORD, 0 ); 
+        strOut += result ? "OK" : "ERR";
+        console.log( strOut )
+      }
+
+      console.log( "\n================ ========= ================\n" )
+
+    }
+
+    function seedAccounts() {
+      const accounts = getCurrentAccounts();
+
+      for ( let account of accounts ) {
+        const balanceDiff = DEFAULT_ACCOUNT_BALANCE
+          .minus( eth.getBalance( account ) );
+        
+        if ( balanceDiff.gt( 0 ) ) {
+          console.log(`Sending ${ balanceDiff } ether to ${account} ...`);
+          eth.sendTransaction({
+            from: eth.accounts[ 0 ],
+            to: account,
+            value: balanceDiff
+          })
+        }
+      }
+
+    }
+
+    function main() {
+      
+      createAccounts();
+      unlockAccounts();
+      seedAccounts();
+
+      while ( 1 ) { // this will allow us to keep accounts unlocked
+        console.log( "Unlocker heartbeat ..." )
+        admin.sleep( 60*60 );
+      }
+    }
+
+    main();
     ```
     > **IMPORTANTE**: recuerde modificar el fichero `index.html` y modificar la *URL* por la siguiente: [ws://localhost:8545](http://localhost:8545)
 
@@ -109,7 +163,7 @@ Si por alguna razón el servicio se encuentra caído, recomendamos esperar unos 
     ``` bash
     npm install
     ```
-4. Ejecute el servidor local HTTP junto a la *blockchain* de *Ethereum* para servirle la interfaz más cómodamente con:
+4. Ejecute el servidor local *HTTP* junto a la *blockchain* de *Ethereum* para servirle la interfaz más cómodamente con:
     ``` bash
     npm run start
     ```

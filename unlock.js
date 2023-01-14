@@ -44,7 +44,7 @@ function seedAccounts() {
     
     const balanceDiff = DEFAULT_ACCOUNT_BALANCE.minus( eth.getBalance( account ) );
     
-    if ( balanceDiff.isGreaterThan( 0 ) ) {
+    if ( balanceDiff.gt( 0 ) ) {
       
       console.log(`Sending ${ balanceDiff } ether to ${account} ...`);
 
