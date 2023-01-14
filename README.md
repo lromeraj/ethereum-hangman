@@ -367,7 +367,6 @@ function tryChar(
         participants.push( msg.sender );
         participantsMap[ msg.sender ].index = participants.length - 1;
     }
-    
     uint256 __amount = amount;
     bytes1 byteChar = bytes( char )[ 0 ];
 
@@ -386,12 +385,10 @@ function tryChar(
             }
         }
     }
-
     if ( amount == __amount ) {
         lives--;
         incorrectChars.push( byteChar );
     }
-
     participantsMap[ msg.sender ].refund += __amount * charPrice;
     emit CharsAdded( getDiscoveredChars(), getIncorrectChars(), getLivesLeft() );
     if ( gameEnded() ) {
