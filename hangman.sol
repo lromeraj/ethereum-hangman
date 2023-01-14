@@ -152,6 +152,10 @@ contract Hangman {
         uint256 __amount = amount;
         bytes1 byteChar = bytes( char )[ 0 ];
 
+        require( 
+            validateAsciiChar( byteChar ),
+            "Given char is not valid" );
+
         for (uint256 i=0; i < secret.length; i++ ) {
 
             if ( secret[i] == byteChar && discoveredChars[i] != byteChar ) {        
@@ -193,7 +197,6 @@ contract Hangman {
     function endGame() 
         private 
     {
-
         
         uint256 jackpot = address( this ).balance;
 
