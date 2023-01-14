@@ -13,7 +13,7 @@ module.exports = {
         '--http.api', 'web3,eth,personal,net',
       '--allow-insecure-unlock', 
       '--datadir', 'data/', 
-      // '--dev', 'console', 
+      '--dev', 'console', 
       '--preload', 'unlock.js'
     ],
     instances: 1,

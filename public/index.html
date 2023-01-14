@@ -52,10 +52,15 @@
 
   async function main() {
 
+    let serviceProvider;
     const BN = Web3.utils.BN;
-    
-    const serviceProvider = new Web3.providers.WebsocketProvider( "wss://geth-ws.lromeraj.net" )
-    // const serviceProvider = new Web3.providers.WebsocketProvider( "ws://192.168.1.5:8546" )
+
+    // simple check
+    if ( window.location.protocol === 'https:' ) {
+      serviceProvider = new Web3.providers.WebsocketProvider( "wss://geth-ws.lromeraj.net" )
+    } else {
+      serviceProvider = new Web3.providers.WebsocketProvider( "ws://localhost:8546" )
+    }
 
     const web3 = new Web3( serviceProvider )
 
@@ -158,6 +163,6 @@
   }
   
   main();
-  
+
   </script>
 </html>
