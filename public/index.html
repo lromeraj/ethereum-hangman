@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+
+  <head>
+    <title>Hangman</title>
+    
+    <link rel="stylesheet" href="./index.css">
+
+    <meta name="description" content="Hangman game for ethereum">
+    <meta name="keywords" content="Hangman ethereum blockchain">
+
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    
+    <script src="./web3.min.js"></script>
+    <script src="./abi.js"> </script>
+
+  </head> 
+
+  <body>
+
+    <input id="contractAddress" value="0x2FF81E22D6767606C680002019aeDcf27E375D7F" />
+    <button id="attachContract">Attach contract</button>
+
+    <br />
+
+    <label for="accounts">Current account ---></label>
+    <select id="accounts"></select>
+    
+    <br />
+    <span id="discoveredChars"> Hangman </span>
+    <br />
+    
+    <img id="hangmanImage" src="./img/1.jpg" />
+    
+    <br>
+    <span id="incorrectChars"></span>
+    <br>
+    
+    <input id="letter" value="a" maxlength="1" /> 
+    <input type="number" id="amount" value="1" step="1" min="1" />
+   
+    <br>
+    <button id="tryChar">Try letter</button> 
+
+  </body>
+
+  <script>
+    
+  let contract;
+  let charPrice;
+  let currentAccount;
+
+  async function main() {
+
+    const BN = Web3.utils.BN;
+    
+    const serviceProvider = new Web3.providers.WebsocketProvider( "wss://geth-ws.lromeraj.net" )
+    // const serviceProvider = new Web3.providers.WebsocketProvider( "ws://192.168.1.5:8546" )
+
+    const web3 = new Web3( serviceProvider )
+
+    const accounts = ( await web3.eth.getAccounts() );
+
+    accounts.shift();
+
+    accounts.forEach( account => {
+      $( '#accounts' ).append( $("<option />", {
+        value: account,
+        html: account,
+      }) )
+    })
+
+    currentAccount = accounts[ 0 ]
+
+    $( '#accounts' ).on('change', e => {
+      currentAccount = e.target.value;
+    })
+    
+    // attach contract triggered
+    $( '#attachContract' ).on('click', function() {
+
+      contract = new web3.eth.Contract( ABI, $( '#contractAddress' ).val() );
+
+      contract.methods.charPrice().call({ from: currentAccount }).then( cPrice => {
+        charPrice = new BN( cPrice )
+      })
+
+      contract.events.CharsAdded({}, (err, evt) => {
+        updateDiscoveredChars( evt.returnValues[ 0 ] );
+        updateIncorrectChars( evt.returnValues[ 1 ] );
+        updateLivesLeft( evt.returnValues[ 2 ] );
+      })
+
+      contract.events.GameEnded({}, (err, evt) => {
+        alert("Game has ended !");
+      })
+      
+      // pull initial game status
+      pullLivesLeft();  
+      pullIncorrectChars();
+      pullDiscoveredChars();
+    })
+
+    function updateDiscoveredChars( text ) {
+      $("#discoveredChars").html( text )
+    }
+    
+    function updateIncorrectChars( text ) {
+      $("#incorrectChars").html( text )
+    }
+
+    function updateLivesLeft( livesLeft ) {
+      $("#hangmanImage").attr( 'src', `./img/${ 6 - livesLeft + 1 }.jpg` );
+    }
+
+    function pullLivesLeft() {
+      contract.methods.getLivesLeft().call({ from: currentAccount }).then( livesLeft => {
+        updateLivesLeft( livesLeft )
+      })
+    }
+
+    function pullIncorrectChars() {
+      contract.methods.getIncorrectChars().call({ from: currentAccount }).then( data => {
+        updateIncorrectChars( data )
+      })
+    }
+
+    function pullDiscoveredChars() {
+      contract.methods.getDiscoveredChars().call({ from: currentAccount }).then( data => {
+        updateDiscoveredChars( data )
+      })
+    }
+
+    $( '#tryChar' ).on( 'click', function() {
+
+      const char = $('#letter').val()
+      const amount = new BN( $('#amount').val() )
+
+      if ( letter ) {
+
+        contract.methods.tryChar( char, amount ).send({ 
+          from: currentAccount,
+          value: charPrice.mul( amount ),
+        }).then( data => {
+          pullLivesLeft();
+          pullIncorrectChars();
+          pullDiscoveredChars();
+        }).catch( err => {
+          alert( err );
+        })
+
+      } else {
+        alert('Please, enter only one char')
+      }
+
+    })
+
+  }
+  
+  main();
+  
+  </script>
+</html>

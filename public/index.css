@@ -1,0 +1,70 @@
+body {
+  text-align: center;
+}
+
+button {
+  cursor: pointer;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+#discoveredChars {
+  font-size: 150px;
+  font-weight: bold;
+  letter-spacing: 25px;
+}
+
+#incorrectChars {
+  font-size: 100px;
+  color: red;
+}
+
+#hangmanImage {
+  height: 300px;
+  padding-left: 45px;
+}
+
+#accounts {
+  margin: 1em 0;
+}
+
+#letter, #amount {
+  font-size: 3em;
+  outline: none;
+  border: none;
+  box-shadow: 0 0 .5em 0 rgba(0,0,0,0.2);
+  border-radius: .4em;
+  margin: 0 10px;
+  padding: .5em;
+  font-weight: bold;
+}
+
+#letter {
+  width: 50px;
+  text-align: center;
+}
+
+#amount {
+  width: 50px;
+  text-align: center;
+}
+
+#tryChar {
+  margin-top: 1em;
+  display: inline-block;
+  font-size: 2em;
+  padding: .5em;
+  font-weight: bold;
+  border-radius: .5em;
+  border: none;
+  background-color: rgba(0,0,0,0.05);
+}
+
+#tryChar:hover {
+  background-color: rgba(0,0,0,0.2);
+}

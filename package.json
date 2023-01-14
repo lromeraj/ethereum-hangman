@@ -1,0 +1,21 @@
+{
+  "name": "Hangman",
+  "version": "1.0.0",
+  "description": "A hangman game implementqation fot the Ethereum blockchain",
+  "main": "index.js",
+  "scripts": {
+    "start": "pm2 start ecosystem.config.js",
+		"stop": "pm2 stop ecosystem.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.lromeraj.net:ucm/miot/dii/p4.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pm2": "^5.2.2",
+    "web3": "^1.8.1"
+  }
+}

@@ -2,11 +2,11 @@
   @import "./md-utils/style.css";
 </style>
 
-*En fecha 08/12/2022*, por:   
+*En fecha 14/01/2023*, por:   
   - *Alberto Carlos Martin Rodriguez*  
   - *Javier Romera Llave*
 
-# Práctica 3 | DII | Blockchain
+# Práctica 3 | DII | Blockchain: el juego del ahorcado
 
 <div class="img-centered">
   <img src="./img/blockchain.png" width="250">
@@ -14,262 +14,152 @@
 
 <div class="index">
 
-- [Práctica 3 | DII | Blockchain](#práctica-3--dii--blockchain)
-- [Descripción del código implementado](#descripción-del-código-implementado)
-- [Pruebas realizadas (capturas de pantalla)](#pruebas-realizadas-capturas-de-pantalla)
+- [Práctica 3 | DII | Blockchain: el juego del ahorcado](#práctica-3--dii--blockchain-el-juego-del-ahorcado)
+- [Descripción general](#descripción-general)
+- [Dependencias](#dependencias)
 - [Guía de usuario de la aplicación](#guía-de-usuario-de-la-aplicación)
-- [Despliegue en la *testnet* de `Goerli`](#despliegue-en-la-testnet-de-goerli)
+  - [Configurar una instancia propia](#configurar-una-instancia-propia)
+- [Mecánica de juego](#mecánica-de-juego)
+- [Descripción del código implementado](#descripción-del-código-implementado)
+- [Repositorio](#repositorio)
 - [Referencias](#referencias)
 
 </div>
 
 <p break/>
 
-# Descripción del código implementado
+# Descripción general
 
-En primer lugar tenemos una declaración de las distintas variables que se utilizarán en nuestra aplicación:
+Hemos decidido implementar una versión modificada del juego del ahorcado para la *blockchain* de *Ethereum*. La mecánica del juego es muy similar a la del ahorcado original pero con algunas modificaciones que mostraremos en la sección [de mecánica de juego](#mecánica-de-juego). Además, también hemos implementado una pequeña y simple interfaz que permite interactuar con el contrato correspondiente y poder así participar en el juego más cómodamente. 
 
-``` javascript
-address public owner;
-address public winner;
-uint256 public minParticipants = 2;
-uint256 public numberOfParticipants = 0;
-uint256 public jackpot = address(this).balance;
+# Dependencias
 
-address[] private participants;
-```
+Dado que ofrecemos una solución con interfaz, la configuración del entorno será ligeramente más compleja que en la práctica anterior, ya que a parte de utilizar *Remix* utilizaremos una instancia de una red privada para la blockchain de *Ethereum* usando el cliente `geth`. También será necesario tener instalado el manejador de paquetes de *Node JS* (`npm`).
 
-Muchas de estas variables se inicializan en el constructor del contrato:
+- Cómo instalar `npm` -> [https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-20-04-es](https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-20-04-es) (recomendamos la segunda opción)
 
-``` javascript
-constructor( uint256 nParticipants ) payable {
+- Cómo instalar `geth` -> [https://geth.ethereum.org/docs/getting-started/installing-geth](https://geth.ethereum.org/docs/getting-started/installing-geth)
 
-    require( 
-        nParticipants >= minParticipants,
-        "The minimum number of participants is 2" );
-    
-    owner = msg.sender;
-    minParticipants = nParticipants;
-}
-```
-
-Como se puede observar se obliga a que haya un mínimo de 2 participantes para resolver el sorteo pero el creador del mismo puede exigir un número mayor de participantes. Se utiliza el objeto `msg` para asignar como propietario al creador del contrato.
-
-El creador del sorteo `NO` participa de manera implícita en el mismo, si cualquier usuario desea participar en el sorteo debe utilizar la siguiente función:
-
-``` javascript
-function participate() public payable {
-    
-    jackpot = address( this ).balance;
-
-    require(
-        msg.value == 1 wei,
-        "You have to pay 1 wei to play the game" );
-
-    for ( uint256 i=0; i < participants.length; i++ ) {
-        require(
-            participants[i] != msg.sender,
-            "You have already applied for this lott" );
-    }
-
-    participants.push( msg.sender );
-    numberOfParticipants++;
-}
-```
-
-Dicha función permite a los usuarios participar en el sorteo pagando una cantidad específica de `1 wei`. Como se puede observar se comprueba si el usuario participó anteriormente en este sorteo y evitar que pueda participar varias veces (podría haberse permitido pero en nuestro caso hemos preferido limitarlo y obligar a que todos los participantes tengan la misma probabilidad de obtener el premio).
-
-<p break/>
-Una vez que se ha alcanzado el número mínimo de participantes, el propietario del contrato puede resolver el sorteo ejecutando la siguiente función:
-
-``` javascript
-function resolve() public {
-
-    require( 
-        participants.length >= minParticipants,
-        "Not enough participants" );
-
-    require(
-        msg.sender == owner,
-        "You are not the owner, can not resolve" );
-    
-    winner = peekRandomParticipant();
-    payable( winner ).transfer( jackpot );
-    reset();
-}
-```
-Esta función se asegura de que el usuario que solicita la resolución es realmente el propietario, acto seguido se invoca una función encargada de elegir un participante de forma aleatoria de la lista de participantes, como se puede ver a continuación:
-
-``` javascript
-function peekRandomParticipant() private view returns( address ) {
-    uint256 index = uint256( keccak256( abi.encodePacked( block.timestamp, block.difficulty, participants ) ) ) % participants.length;
-    return participants[ index ];
-}
-```
-Esta función utiliza como semilla el instante de la transacción del bloque, la dificultad del mismo, así como los participantes actuales del sorteo (la lista de participantes está oculta). Para implementar esta función nos hemos inspirado en la referencia [[1]](#referencias).
-
-> **NOTA**: utilizar el módulo puede afectar seriamente a la "aleatoridad" de los números generados, ya que es probable que produzca descompensaciones y aparezcan números "viciosos". Debido a que Solidity no tiene soporte nativo para números en coma flotante no es trivial hacer una mejor implementación.
-
-Volviendo a la función `resolve()` tras extraer el participante de manera aleatoria se transfiere todo el lote a dicho participante y se hace un *reset* del juego para volver a sus valores por defecto:
-
-``` javascript
-function reset() private {
-    delete participants; // limpiamos la lista de participantes
-    numberOfParticipants = 0; // reiniciamos el número de participantes
-    jackpot = address(this).balance; // actualizamos el valor del lote
-}
-```
-
-<p break />
-
-# Pruebas realizadas (capturas de pantalla)
-
-Una vez compilada nuestra aplicación (usando el código fuente anteriormente descrito), procederemos a crear un contrato y probar la funcionalidad general de la aplicación.
-
-1. En primer lugar desplegaremos nuestra aplicación:
-  
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_deploy.png" width="300">
-    </div> 
-    Como se puede observar en el mismo botón de desplegar tenemos la opción de elegir el número mínimo de participantes que será necesario para poder resolver el concurso posteriormente.  
-
-    Para esta prueba utilizaremos un mínimo de `3` participantes.
-
-<p break />
-
-2. Tras desplegarlo nos aparecerá lo siguiente:
-      
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_deployed.png" width="300">
-    </div> 
-
-    Tenemos múltiples botones los cuales nos permitirán ejecutar las distintas funciones que mencionamos anteriormente. Para esta prueba utilizaremos tres usuarios distintos y participaremos con `1` *ether* (aunque en la descripción del código hayamos puesto que era necesario `1` *wei* para las pruebas hemos modificado este valor por `1` *ether* para que los resultados sean más significativos).
-
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_1_ether.png" width="300">
-      </br>
-      <img src="./img/remix_participate.png" width="300">
-    </div> 
-
-<p break />
-
-
-3. Después de haber participado, vemos como el balance ha aumentado acorde a lo ingresado:
-    <div class="img-centered img-rounded img-shadowed">
-      <img src="./img/remix_after_participate.png" width="300">
-    </div> 
-
-    Si intentamos volver a participar con el mismo *addres* (`0x5B38Da6a701c568545dCfcB03FcB875f56beddC4`), obtenemos un error como el que aparece a continuación:
-
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_participate_error.png" width="100%">
-    </div>
-
-4. Repetiremos los pasos anteriores con los otros dos participantes, el balance total tras esto resulta ser:
-    
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_total_balance.png" width="300">
-    </div>
-
-5. Ahora ya podemos resolver el sorteo, si intentamos resolver el sorteo y no somos el propietario obtendremos un error como el siguiente:
-
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_resolve_error.png" width="100%">
-    </div>
-
-<p break />
-
-6. Si cambiamos a la cuenta del propietario sí que podremos resolver el sorteo, y como podemos observar en la siguiente imagen:
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_resolve_result.png" width="300">
-    </div>
-
-    En este caso es el propio propietario el que ha recibido el premio (ya que también participó voluntariamente).
-
-7. Tras esto, el juego es restablecido y podemos repetir el proceso de participación y resolución mencionado anteriormente.
+> **ATENCIÓN**: estos pasos son necesarios si finalmente decide configurar una instancia propia para probarlo, pero como verá en el siguiente apartado no es estrictamente necesario.
 
 # Guía de usuario de la aplicación
-Dado que en la anterior sección describimos con capturas de pantalla un ejemplo de uso de la aplicación, en este apartado describiremos todas las condiciones y/requisitos de la aplicación:
 
-- El que crea el contrato es considerado como propietario.
-- El propietario del contrato es el único que puede solicitar la resolución del sorteo.
-- El juego puede ser resulto única y exclusivamente si hay un mínimo de participantes, dicho número de participantes se establece al crear el contrato.
-- El propietario no tiene que pagar ni tampoco incluir un depósito inicial para el sorteo.
-- Aunque el mínimo de participantes pueda ser establecido por el propietario existe un mínimo absoluto de `2` participantes.
-- El propietario también puede participar en el sorteo.
-- Solamente se puede participar una única vez en el sorteo, es decir, solo se puede comprar una papeleta por usuario, y cada una de estas papeletas tiene un precio fijo de `1 wei`.
-- La resolución del sorteo es pseudoaleatoria, aunque casi aleatoria debido a la espontaneidad de las semillas.
+Para facilitar la corrección y evitar que el corrector tenga la necesidad de montar y configurar su propia instancia, hemos instanciado una *blokchain* de *Ethereum* propia (*on-premise*) así como un pequeño servidor *HTTP* que sirve la interfaz, para que tan solo sea necesario usar el navegador con `Remix` para crear un contrato nuevo (aunque se dejarán algunas instancias vacías para que se puedan probar sin necesidad de tener que abrir *Remix* ).
 
+> **NOTA**: la interfaz de usuario permite cargar una instancia de un contrato creado anteriormente **pero NO permite crear un contrato**, para crear un contrato será estrictamente necesario el uso de *Remix* usando la url correspondiente.
+
+A continuación detallamos los pasos necesarios para probar nuestra aplicación de la forma más cómoda posible:
+
+1. Abra su navegador y acceda a la siguiente URL [https://hangman.lromeraj.net](https://hangman.lromeraj.net)
+
+> Antes de comenzar a jugar, le recordamos que hemos implementado un sistema de eventos para dar soporte a cambios en tiempo real que ocurran en el contrato y poder así notificar al resto de jugadores que se encuentren en línea.
+
+2. Como podrá observar en la interfaz de usuario, el primer *input* permite introducir la dirección del contrato correspondiente, a continuación le adjuntamos una serie de instancias con un juego ya creado pero sin interacción previa alguna:
+    ``` js
+    // poner aquí las direcciones
+    ```
+    **ATENCIÓN**: si desea crear sus propios contratos deberá abrir *Remix* y copiar el código del contrato tal cual se encuentra en el repositorio, se recomienda NO modificar el contrato, ya que esto podría entrar en conflicto con el *ABI* grabado en el servidor *HTTP* que le sirve la interfaz y dejarla inservible (si modifica las cabeceras de algunas funciones por ejemplo). Cuando vaya a desplegar el contrato seleccione el entorno `External Http Provider` y escriba la siguiente URL: [https://geth.lromeraj.net:443](). El siguiente paso simplemente consiste en crear un contrato, ¡piense en un buen secreto a la hora de crearlo! ;)
+
+___
+
+## Configurar una instancia propia
+
+Si por alguna razón el servicio se encuentra caído, recomendamos esperar unos minutos (puede dar la casualidad ed que estemos dando retoques), o simplemente prefiere instanciar el servicio en su propia máquina, se adjuntan algunas indicaciones adicionales para tal efecto:
+
+1. Eliminar la restricción de `Chrome` sobre redes [privadas que no usan conexiones seguras](https://stackoverflow.com/questions/66534759/cors-error-on-request-to-localhost-dev-server-from-remote-site).
+    **IMPORTANTE**: ¡recuerde volver a activarla después de las pruebas!
+
+2. Lanzar el servidor local usando la implementación escrita en *Go* de la *blockchain* de *Ethereum* (`geth`):
+    ``` bash
+    geth \
+      --ws \
+        --ws.origins="*" \
+        --ws.addr="0.0.0.0" \
+      --http \
+        --http.vhosts="*" \
+        --http.corsdomain="*" \
+        --http.addr="0.0.0.0" \
+        --http.api="web3,eth,personal,net" \
+      --allow-insecure-unlock \
+      --datadir="data/" \
+      --dev \
+      --preload="unlock.js" \
+      console
+    ```
+    **NOTA**: no hace falta que ejecute este comando ahora, es simplemente para que pueda ver los parámetros que se pasan cuando se ejecute posteriormente de forma automática. El *script* `unlock.js` desbloquea todas las cuentas para que puedan ser utilizadas durante las pruebas del juego. El *script* mostrado a continuación básicamente desbloquea todas las cuentas existentes con la contraseña `1234`:
+    ``` js
+    const accountsToUnlock = [ ... eth.accounts ]
+
+    accountsToUnlock.shift(); // remove first account
+
+    console.log( "\n================ UNLOCK SCRIPT ================\n" )
+
+    for ( let account of accountsToUnlock ) {
+      let strOut = `Unlocking account ${ account } ... `
+      const result = personal.unlockAccount( account, "1234", 0 );
+      strOut += result ? "OK" : "ERR";
+      console.log( strOut )
+    }
+
+    console.log( "\n================ ============== ================\n" )
+    ```
+    > **IMPORTANTE**: recuerde modificar el fichero `index.html` y modificar la *URL* por la siguiente: [ws://localhost:8545](http://localhost:8545)
+
+3. Ahora debe instalar las dependencias del servidor local *HTTP* ejecutando simplemente:
+    ``` bash
+    npm install
+    ```
+4. Ejecute el servidor local HTTP junto a la *blockchain* de *Ethereum* para servirle la interfaz más cómodamente con:
+    ``` bash
+    npm run start
+    ```
+5. Abra en su navegador la siguiente URL [http://localhost:5002](http://localhost:5002) ¡y a jugar!
+
+> **ATENCIÓN**: este proyecto incluye claves y configuraciones especiales para un entorno de pruebas y en ningún caso debería usarse para entornos de producción sin una previa limpieza y revisión.
+
+# Mecánica de juego
+
+- Existe un precio fijo por letra (hemos fijado este valor en `0.1 ether`).
+- El creador del contrato (propietario) elige un secreto utilizando caracteres ASCII alfanuméricos (también se incluyen los espacios), el coste para formalizar la creación del contrato será en base al número de letras que conformen el secreto (en este caso, $C = N * 0.1_{Ether}$).
+- El secreto a descubrir puede estar en cualquier lenguaje o formato utilizando los caracteres anteriormente mencionados (no se aplica ningún mecanismo para comprobar si realmente es un texto con "sentido").
+- La longitud máxima posible para el secreto será de $36$ letras.
+
+- Dado que el precio gira entorno al número de letras, los participantes cada vez que quieran revelar letras tendrán que pagar en función de las mismas. Uno se convierte en participante con el simple hecho de incorporar alguna letra.
+  1. Si la letra solicitada no existe se acumula un reembolso que se devolverá al finalizar.
+  2. Si la letra solicitada se ingresa en una cantidad superior a las existentes/restantes se procederá al reembolso cuando finalice el juego.
+
+- Siempre que se finaliza el juego (gane quien gane) lo primero que se hace es reembolsar (en caso de que haya reembolso) el valor correspondiente a cada uno de los participantes.
+
+- En caso de que los participantes hayan agotado todas sus vidas, el propietario recibirá un reembolso íntegro correspondiente al coste total de la creación del contrato, el dinero restante (aportado por los participantes), será distribuido de la siguiente forma:
+  - Valor para los participantes -> $V_{Participantes} = D_{Total} * N_{LetrasAcertadas} / N_{Letras restantes}$
+  - Valor para el propietario -> $V_{Propietario} = D_{Total} - V_{Participantes}$
+  - Valor para cada participante -> $V_{Participantes} / N_{Participantes}$  
+  **NOTA**: $D_{Total}$ es el depósito total restante tras haber realizado los reembolsos correspondientes.
+
+- En caso de que los participantes resulten ganadores, de nuevo, el primer paso es reebolsar el valor correspondiente a cada uno de ellos, pero en este caso el depósito restante $D_{Total}$ será igual a la suma de la contribución del propietario más todas las contribuciones de los participantes:
+  - Valor para cada participante -> $V_{Participante} = D_{total} / N_{Participantes}$
+
+- El propietario NO puede actuar como participante.
+- El límite máximo de participantes será de $N_{LetrasScreto} / 6$
+- Se deduce el número máximo absoluto de participantes por $N_{MaxLetras} / N_{MaxParticipantes} = 6$
+
+
+# Descripción del código implementado
+Describiremos las partes más relevantes del código implementado para el contrato correspondiente.
 
 <p break />
 
+# Repositorio
+El siguiente repositorio contiene todo el código fuente de esta práctica: []()
 
-# Despliegue en la *testnet* de `Goerli`
+___
 
-Hemos instalado la extensión de `MetaMask` en el navegador y hemos creado `4` cuentas, cada una de ellas con `0.2` *ether* para poder realizar las pruebas con el contrato implementado. Para cargar dichas cuentas hemos utilizado la siguiente web `https://goerlifaucet.com/`.
-
-Utilizando el IDE de Remix podemos desplegar nuestra aplicación en la *testnet* de `Goerli`. Para estas pruebas hemos modificado la participación a `0.01` ether.
-
-1. Seleccionamos `MetaMask` como entorno:
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_metamask.png" width="300">
-    </div>
-
-<p break />
-
-2. Tras crear el contrato con la primera cuenta la cantidad de *ether* en esta cuenta se ha reducido por el costo de la transacción:
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/metamask_account_1.png" width="300">
-    </div>
-    
-    El contrato resultante tiene la dirección: `0xB6D0eF04e85f2A2249Fa0Dd3E6C74735FDCdF86f`
-
-<p break />
-
-
-3. Participamos con `0.01` *ether* con las otras tres cuentas, para ello tendremos que insertar el `address` del contrato creado anteriormente:
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_metamask_participate.png" width="300">
-    </div>
-
-<p break />
-
-4. A la hora de participar se nos abrirá una nueva pestaña para confirmar la transacción:
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_metamask_confirm.png" width="300">
-    </div>
-
-<p break />
-
-5. Tras aceptar dicha transacción podemos observar que el contrato tiene el balance correspondiente de `0.1` *ether*:
-
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_metamask_balance.png" width="300">
-    </div>
-
-    Tras realizar las dos participaciones restantes con las otras cuentas podemos observar que le contrato tiene un balance total de `0.3` *ether*:
-
-    <div class="img-centered img-rounded img-shadowed" >
-      <img src="./img/remix_metamask_full_balance.png" width="300">
-    </div>
-
-6. Si volvemos a seleccionar la cuenta propietaria del contrato podemos proceder a resolver el sorteo y observamos el dinero que tenían cada una de las cuentas justo antes y después de resolver dicho sorteo:
-    | Address | Antes | Después |
-    |--|--|--|
-    | Account1 | 0.2362 | 0.2361 |
-    | Javichu1 | 0.1797 | 0.1797 |
-    | Javichu2 | 0.1598 | 0.1898 |
-    | Javichu3 | 0.1697 | 0.1697 |
-
-    La cuenta `Account1` que es la cuenta que gestiona el sorteo tiene menos dinero debido a la transacción que tuvo que pagar para resolver el sorteo. Y como podemos observar el ganador en este caso fue `Javichu2` que recibió los `0.3` *ether* (algo menos por el costo de esta última transacción).
-
-<p break />
+Si el enlace de arriba no le funciona puede utilizar este otro repositorio: []()
 
 # Referencias
 
 Hemos consultado distintos ejemplos y referencias web para poder conocer los objetos y derivados de Selenium para implementar toda la funcionalidad de la aplicación *Blockchain*:
 
-1. Randomness in solidity - [https://codedamn.com/news/solidity/generate-a-random-number](https://codedamn.com/news/solidity/generate-a-random-number)
-
+1. Servidor local para la blockchain de Etherium - [https://github.com/ethereum/go-ethereum](https://github.com/ethereum/go-ethereum)
 
 
