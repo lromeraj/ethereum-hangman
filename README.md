@@ -282,23 +282,18 @@ El constructor del contrato realiza algunas validaciones extra para que la inici
   ) 
       payable
   {
-
       secret = bytes( __secret );
-
       require ( 
           secret.length <= 36,
           "Secret too long, maximum is 36 characters" );
-
       require ( msg.value == secret.length * charPrice, 
           "You have to pay 0.1 ether per letter" );
-      
       for ( uint256 i=0; i < secret.length; i++ ) {
           require( 
               validateAsciiChar( secret[ i ] ),
               "Secret contains invalid characters" );
           discoveredChars.push( "_" );
       }
-
       owner = msg.sender;
       maxParticipants = secret.length / 6;
       maxParticipants = maxParticipants > 0 ? maxParticipants : 1;
@@ -438,11 +433,7 @@ function endGame()
 
     } else { // owner has won
 
-        // as the owner can use any ASCII combination (in some situations) it will be very
-        // difficult for participants to find out the secret
-        // so even thoug the owner has won we don't give the whole jackpot to the owner
-        
-        uint256 ownerInversion = secret.length * charPrice;
+uint256 ownerInversion = secret.length * charPrice;
         uint256 sharedJackpot = jackpot - ownerInversion;
 
         uint256 forParticipants = sharedJackpot * charsFound / secret.length;
@@ -451,13 +442,13 @@ function endGame()
         for ( uint256 i=0; i < participants.length; i++ ) {
             payable( participants[i] ).transfer( forParticipants / participants.length );
         }
-        
         payable( owner ).transfer( forOwner );
     }
-
     emit GameEnded();
 }
 ```
+
+<p break />
 
 ## Implementación de la interfaz de usuario
 
@@ -494,7 +485,6 @@ Cuando el usuario carga la instancia del contrato correspondiente se obtienen lo
 ``` js
 $( '#attachContract' ).on('click', function() {
   contract = new web3.eth.Contract( ABI, $( '#contractAddress' ).val() );
-
   contract.methods.charPrice().call({ from: currentAccount }).then( cPrice => {
     charPrice = new BN( cPrice )
   })
@@ -506,7 +496,6 @@ $( '#attachContract' ).on('click', function() {
   contract.events.GameEnded({}, (err, evt) => {
     alert("Game has ended !");
   })
-
   pullLivesLeft();  
   pullIncorrectChars();
   pullDiscoveredChars();
@@ -672,13 +661,11 @@ function createAccounts() {
     }
   }
 } 
-
 function getCurrentAccounts() {
   const currentAccounts = [ ... eth.accounts ]
   currentAccounts.shift();
   return currentAccounts;
 }
-
 function unlockAccounts() {
   const accounts = getCurrentAccounts();
   for ( let account of accounts ) {
@@ -689,7 +676,6 @@ function unlockAccounts() {
     console.log( strOut )
   }
 }
-
 function seedAccounts() {
   const accounts = getCurrentAccounts();
   for ( let account of accounts ) {
@@ -705,7 +691,6 @@ function seedAccounts() {
     }
   }
 }
-
 function main() {
   createAccounts();
   unlockAccounts();
@@ -715,6 +700,5 @@ function main() {
     admin.sleep( 60*60 );
   }
 }
-
 main();
 ```
