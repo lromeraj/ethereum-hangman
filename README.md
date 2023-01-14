@@ -6,7 +6,7 @@
   - *Alberto Carlos Martin Rodriguez*  
   - *Javier Romera Llave*
 
-# Práctica 3 | DII | Blockchain: el juego del ahorcado
+# Práctica 4 | DII | Blockchain: el juego del ahorcado
 
 <div class="img-centered">
   <img src="./img/blockchain.png" width="250">
@@ -14,7 +14,7 @@
 
 <div class="index">
 
-- [Práctica 3 | DII | Blockchain: el juego del ahorcado](#práctica-3--dii--blockchain-el-juego-del-ahorcado)
+- [Práctica 4 | DII | Blockchain: el juego del ahorcado](#práctica-4--dii--blockchain-el-juego-del-ahorcado)
 - [Descripción general](#descripción-general)
 - [Dependencias](#dependencias)
 - [Guía de usuario de la aplicación](#guía-de-usuario-de-la-aplicación)
@@ -22,6 +22,8 @@
 - [Mecánica de juego](#mecánica-de-juego)
 - [Descripción del código implementado](#descripción-del-código-implementado)
 - [Repositorio](#repositorio)
+  - [GitLab propietario (recomendado)](#gitlab-propietario-recomendado)
+  - [GitHub](#github)
 - [Referencias](#referencias)
 
 </div>
@@ -40,13 +42,13 @@ Dado que ofrecemos una solución con interfaz, la configuración del entorno ser
 
 - Cómo instalar `geth` -> [https://geth.ethereum.org/docs/getting-started/installing-geth](https://geth.ethereum.org/docs/getting-started/installing-geth)
 
-> **ATENCIÓN**: estos pasos son necesarios si finalmente decide configurar una instancia propia para probarlo, pero como verá en el siguiente apartado no es estrictamente necesario.
+> **ATENCIÓN**: estos pasos son necesarios si finalmente decide configurar una instancia propia para probarlo, pero como verá en el siguiente apartado **no es estrictamente necesario**.
 
 # Guía de usuario de la aplicación
 
 Para facilitar la corrección y evitar que el corrector tenga la necesidad de montar y configurar su propia instancia, hemos instanciado una *blokchain* de *Ethereum* propia (*on-premise*) así como un pequeño servidor *HTTP* que sirve la interfaz, para que tan solo sea necesario usar el navegador con `Remix` para crear un contrato nuevo (aunque se dejarán algunas instancias vacías para que se puedan probar sin necesidad de tener que abrir *Remix* ).
 
-> **NOTA**: la interfaz de usuario permite cargar una instancia de un contrato creado anteriormente **pero NO permite crear un contrato**, para crear un contrato será estrictamente necesario el uso de *Remix* usando la url correspondiente.
+> **NOTA**: la interfaz de usuario permite cargar una instancia de un contrato creado anteriormente **pero NO permite crear un contrato**, para crear un contrato será estrictamente necesario el uso de *Remix* usando el proveedor correspondiente (como veremos posteriormente).
 
 A continuación detallamos los pasos necesarios para probar nuestra aplicación de la forma más cómoda posible:
 
@@ -58,9 +60,7 @@ A continuación detallamos los pasos necesarios para probar nuestra aplicación 
     ``` js
     // poner aquí las direcciones
     ```
-    **ATENCIÓN**: si desea crear sus propios contratos deberá abrir *Remix* y copiar el código del contrato tal cual se encuentra en el repositorio, se recomienda NO modificar el contrato, ya que esto podría entrar en conflicto con el *ABI* grabado en el servidor *HTTP* que le sirve la interfaz y dejarla inservible (si modifica las cabeceras de algunas funciones por ejemplo). Cuando vaya a desplegar el contrato seleccione el entorno `External Http Provider` y escriba la siguiente URL: [https://geth.lromeraj.net:443](). El siguiente paso simplemente consiste en crear un contrato, ¡piense en un buen secreto a la hora de crearlo! ;)
-
-___
+3. si desea crear sus propios contratos deberá abrir *Remix* y copiar el código del contrato tal cual se encuentra en el repositorio, se recomienda NO modificar el contrato, ya que esto podría entrar en conflicto con el *ABI* grabado en el servidor *HTTP* que le sirve la interfaz y dejarla inservible (si modifica las cabeceras de algunas funciones por ejemplo). Cuando vaya a desplegar el contrato seleccione el entorno `External Http Provider` y escriba la siguiente URL `https://geth.lromeraj.net:443`. El siguiente paso simplemente consiste en crear un contrato, ¡piense en un buen secreto a la hora de crearlo! ;)
 
 ## Configurar una instancia propia
 
@@ -157,7 +157,7 @@ Si por alguna razón el servicio se encuentra caído, recomendamos esperar unos 
 
     main();
     ```
-    > **IMPORTANTE**: el client web de la interfaz de usuario trata de resolver el dominio en función de si utiliza su instancia o la remota, en caso de que surja algún problema recuerde que puede modificar el fichero `index.html` y modificar la *URL* por la siguiente:  
+    > **IMPORTANTE**: el cliente web de la interfaz de usuario trata de resolver el dominio en función de si utiliza su instancia o la remota, en caso de que surja algún problema recuerde que puede modificar el fichero `index.html` y modificar la *URL* por la siguiente:  
     > ```config
     > ws://localhost:8545
     > ```
@@ -166,7 +166,7 @@ Si por alguna razón el servicio se encuentra caído, recomendamos esperar unos 
     ``` bash
     npm install
     ```
-4. Ejecute el servidor local *HTTP* junto a la *blockchain* de *Ethereum* para servirle la interfaz más cómodamente con:
+4. Ejecute el servidor local *HTTP* junto a la *blockchain* de *Ethereum* con el siguiente comando:
     ``` bash
     npm run start
     ```
@@ -177,7 +177,7 @@ Si por alguna razón el servicio se encuentra caído, recomendamos esperar unos 
 # Mecánica de juego
 
 - Existe un precio fijo por letra (hemos fijado este valor en `0.1 ether`).
-- El creador del contrato (propietario) elige un secreto utilizando caracteres ASCII alfanuméricos (también se incluyen los espacios), el coste para formalizar la creación del contrato será en base al número de letras que conformen el secreto (en este caso, $C = N * 0.1_{Ether}$).
+- El creador del contrato (propietario) elige un secreto utilizando caracteres *ASCII* alfanuméricos (también se incluyen los espacios), el coste para formalizar la creación del contrato será en base al número de caracteres que conformen el secreto (en este caso, $C = N * 0.1_{Ether}$).
 - El secreto a descubrir puede estar en cualquier lenguaje o formato utilizando los caracteres anteriormente mencionados (no se aplica ningún mecanismo para comprobar si realmente es un texto con "sentido").
 - La longitud máxima posible para el secreto será de $36$ letras.
 
@@ -188,17 +188,17 @@ Si por alguna razón el servicio se encuentra caído, recomendamos esperar unos 
 - Siempre que se finaliza el juego (gane quien gane) lo primero que se hace es reembolsar (en caso de que haya reembolso) el valor correspondiente a cada uno de los participantes.
 
 - En caso de que los participantes hayan agotado todas sus vidas, el propietario recibirá un reembolso íntegro correspondiente al coste total de la creación del contrato, el dinero restante (aportado por los participantes), será distribuido de la siguiente forma:
-  - Valor para los participantes -> $V_{Participantes} = D_{Total} * N_{LetrasAcertadas} / N_{Letras restantes}$
+  - Valor para los participantes -> $V_{Participantes} = D_{Total} * N_{LetrasAcertadas} / N_{LetrasRestantes}$
   - Valor para el propietario -> $V_{Propietario} = D_{Total} - V_{Participantes}$
   - Valor para cada participante -> $V_{Participantes} / N_{Participantes}$  
   **NOTA**: $D_{Total}$ es el depósito total restante tras haber realizado los reembolsos correspondientes.
 
-- En caso de que los participantes resulten ganadores, de nuevo, el primer paso es reebolsar el valor correspondiente a cada uno de ellos, pero en este caso el depósito restante $D_{Total}$ será igual a la suma de la contribución del propietario más todas las contribuciones de los participantes:
+- En caso de que los participantes resulten ganadores, de nuevo, el primer paso es reembolsar el valor correspondiente a cada uno de ellos, pero en este caso el depósito restante $D_{Total}$ será igual a la suma de la contribución del propietario más todas las contribuciones de los participantes:
   - Valor para cada participante -> $V_{Participante} = D_{total} / N_{Participantes}$
 
 - El propietario NO puede actuar como participante.
-- El límite máximo de participantes será de $N_{LetrasScreto} / 6$
-- Se deduce el número máximo absoluto de participantes por $N_{MaxLetras} / N_{MaxParticipantes} = 6$
+- El límite máximo de participantes será de $N_{CaracteresSecreto} / 6$
+- Se deduce el número máximo absoluto de participantes por $N_{MaxCaracteres} / N_{MaxParticipantes} = 6$
 
 
 # Descripción del código implementado
@@ -207,11 +207,14 @@ Describiremos las partes más relevantes del código implementado para el contra
 <p break />
 
 # Repositorio
-El siguiente repositorio contiene todo el código fuente de esta práctica: []()
+
+## GitLab propietario (recomendado)
+El siguiente repositorio contiene todo el código fuente de esta práctica -> [https://gitlab.lromeraj.net/ucm/miot/dii/p4](https://gitlab.lromeraj.net/ucm/miot/dii/p4)
 
 ___
 
-Si el enlace de arriba no le funciona puede utilizar este otro repositorio: []()
+## GitHub
+Si el enlace de arriba no le funciona puede utilizar este otro repositorio: [https://github.com/lromeraj/ethereum-hangman](https://github.com/lromeraj/ethereum-hangman)
 
 # Referencias
 
