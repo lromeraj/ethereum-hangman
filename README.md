@@ -23,7 +23,7 @@ MathJax.Hub.Queue(function() {
 <!-- ---------------- -->
 
 
-*En fecha 14/01/2023*, por:   
+*En fecha 15/01/2023*, por:   
   - *Alberto Carlos Martin Rodriguez*  
   - *Javier Romera Llave*
 
