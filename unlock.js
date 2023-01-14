@@ -66,7 +66,7 @@ function main() {
   seedAccounts();
   
   while ( 1 ) { // this will allow us to keep accounts unlocked
-      console.log( "Unlocker heartbeat ..." )
+    console.log( "Unlocker heartbeat ..." )
     admin.sleep( 60*60 );
   }
 

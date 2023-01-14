@@ -13,12 +13,14 @@
     
     <script src="./web3.min.js"></script>
     <script src="./abi.js"> </script>
+    
+    <script src="./constants.js"></script>
 
   </head> 
 
   <body>
 
-    <input id="contractAddress" value="0x2FF81E22D6767606C680002019aeDcf27E375D7F" />
+    <input id="contractAddress" value="0x1B1cccaBdfB5F3dED57226d92FCCD7B3D7a1694F" />
     <button id="attachContract">Attach contract</button>
 
     <br />
@@ -54,13 +56,12 @@
 
     let serviceProvider;
     const BN = Web3.utils.BN;
-
     
     // simple check
     if ( window.location.protocol === 'https:' ) {
-      serviceProvider = new Web3.providers.WebsocketProvider( "wss://geth-ws.lromeraj.net" )
+      serviceProvider = new Web3.providers.WebsocketProvider( "wss://geth-ws.lromeraj.net", WS_OPTIONS )
     } else {
-      serviceProvider = new Web3.providers.WebsocketProvider( "ws://localhost:8546" )
+      serviceProvider = new Web3.providers.WebsocketProvider( "ws://localhost:8546", WS_OPTIONS )
     }
 
     const web3 = new Web3( serviceProvider )
@@ -112,7 +113,8 @@
     }
     
     function updateIncorrectChars( text ) {
-      $("#incorrectChars").html( text )
+      $("#incorrectChars").empty();
+      $("#incorrectChars").append( text.replace( /\ /g, '_' ).split('').map( c => $('<div />', { class: 'char', html: c }) ) )
     }
 
     function updateLivesLeft( livesLeft ) {

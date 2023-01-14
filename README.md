@@ -157,7 +157,10 @@ Si por alguna razón el servicio se encuentra caído, recomendamos esperar unos 
 
     main();
     ```
-    > **IMPORTANTE**: recuerde modificar el fichero `index.html` y modificar la *URL* por la siguiente: [ws://localhost:8545](http://localhost:8545)
+    > **IMPORTANTE**: el client web de la interfaz de usuario trata de resolver el dominio en función de si utiliza su instancia o la remota, en caso de que surja algún problema recuerde que puede modificar el fichero `index.html` y modificar la *URL* por la siguiente:  
+    > ```config
+    > ws://localhost:8545
+    > ```
 
 3. Ahora debe instalar las dependencias del servidor local *HTTP* ejecutando simplemente:
     ``` bash

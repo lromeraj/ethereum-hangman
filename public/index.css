@@ -16,6 +16,7 @@ input::-webkit-inner-spin-button {
 #discoveredChars {
   font-size: 150px;
   font-weight: bold;
+  line-break: anywhere;
   letter-spacing: 25px;
 }
 
@@ -39,13 +40,14 @@ input::-webkit-inner-spin-button {
   border: none;
   box-shadow: 0 0 .5em 0 rgba(0,0,0,0.2);
   border-radius: .4em;
-  margin: 0 10px;
+  margin: 20px 0 0 0;
   padding: .5em;
   font-weight: bold;
 }
 
 #letter {
   width: 50px;
+  margin-right: 20px;
   text-align: center;
 }
 
@@ -67,4 +69,20 @@ input::-webkit-inner-spin-button {
 
 #tryChar:hover {
   background-color: rgba(0,0,0,0.2);
+}
+
+.char {
+  display: inline-block;
+  text-align: center;
+  font-size: 35px;
+  outline: none;
+  border: none;
+  box-shadow: 0 0 .5em 0 rgba(0,0,0,0.2);
+  border-radius: .25em;
+  padding: .2em 0;
+  margin: 0px 10px;
+  width: 50px;
+  color: #fff;
+  background-color: #ff5555;
+  font-weight: bold;
 }
